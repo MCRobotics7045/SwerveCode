@@ -48,13 +48,14 @@ public class RobotContainer {
   public double JoyY = XBOX.getLeftY();
 
   public RobotContainer() {
+    System.out.println("Robot Started ");
     configureBindings();
 
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
 
-
+     
 
 
     
@@ -62,7 +63,7 @@ public class RobotContainer {
 
 
   private void configureBindings() {
-
+    System.out.println("Config Bind Ready");
     
     //=================================================================================================================================
     // final POVButton dPadRight = new POVButton(XBOX, 90);
@@ -82,6 +83,13 @@ public class RobotContainer {
 
 
 
+    drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
+        drivetrain.applyRequest(() -> drive 
+        
+        .withVelocityX(-XBOX.getLeftX() * MaxSpeed) // Apply deadzone on X-axis
+        .withVelocityY(-XBOX.getLeftY() * MaxSpeed) // Apply deadzone on Y-axis
+        .withRotationalRate(-XBOX.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+        ));
 
 
 
@@ -90,12 +98,13 @@ public class RobotContainer {
 
     
 
-    drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-        drivetrain.applyRequest(() -> drive.withVelocityX(-XBOX.getLeftX() * MaxSpeed) // Drive forward with
-                                                                                          // negative Y (forward)
-            .withVelocityY(-XBOX.getLeftY() * MaxSpeed) // Drive left with negative X (left)
-            .withRotationalRate(-XBOX.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
-        ));
+    // drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
+    //     drivetrain.applyRequest(() -> drive 
+        
+    //     .withVelocityX(-applyDeadzone(XBOX.getLeftX(), Constants.xboxDeadzoneStickLeft_X) * MaxSpeed) // Apply deadzone on X-axis
+    //     .withVelocityY(-applyDeadzone(XBOX.getLeftY(), Constants.xboxDeadzoneStickLeft_Y) * MaxSpeed) // Apply deadzone on Y-axis
+    //     .withRotationalRate(-applyDeadzone(XBOX.getRightX(), Constants.xboxDeadzoneStickRight_X) * MaxAngularRate) // Drive counterclockwise with negative X (left)
+    //     ));
 
 
     buttonA.whileTrue(drivetrain.applyRequest(() -> brake));
@@ -103,12 +112,18 @@ public class RobotContainer {
     buttonLB.onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldRelative()));
 
     if (Utils.isSimulation()) {
-      drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(180)));
+      drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
     }
     drivetrain.registerTelemetry(logger::telemeterize);
   }
 
-
+  //Deadzone command that takes XBOX value and matches the correct sign of +/_ and then subtracts it form the deadzone than divides to even it out
+  private double applyDeadzone(double stickvalue, double nonozone) {
+    if (Math.abs(stickvalue) < nonozone) {
+        return 0.0;
+    }
+    return (stickvalue - Math.copySign(nonozone, stickvalue)) / (1.0 - nonozone);
+}
 
   public Command getAutonomousCommand() {
     return autoChooser.getSelected();

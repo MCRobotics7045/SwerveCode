@@ -41,7 +41,11 @@ public final class Constants {
     // USB Ports
     public static final int XBOX_CONTROLLER_PORT = 0;
 
-   
+   //Deadzones
 
+   public static final double xboxDeadzoneStickLeft_X = 0.05; //very sorry for long name i just need to get it correct
+   public static final double xboxDeadzoneStickLeft_Y = 0.075;
+   public static final double xboxDeadzoneStickRight_X = 0.1; //this depends on controller 
+   public static final double xboxDeadzoneStickRight_Y = 0.1;
 
 }
