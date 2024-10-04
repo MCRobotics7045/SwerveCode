@@ -8,11 +8,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import javax.swing.text.html.HTML.Tag;
+import java.lang.annotation.Target;
 
 import org.photonvision.PhotonCamera;
-import org.photonvision.PhotonUtils;
-import org.photonvision.targeting.PhotonPipelineResult;
+// import org.photonvision.PhotonUtils;
+// import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class VisionSubsystem extends SubsystemBase {
@@ -25,7 +25,7 @@ public class VisionSubsystem extends SubsystemBase {
   public static SendableChooser<Integer> AprilTagSelector;
   private int lastCheckedTagId = -1; // Keeps track of the last Tag ID checked
   private boolean warningDisplayed = false; // Flag to track if warning has been shown
-
+  private boolean Targetseen = false;
   public VisionSubsystem() {
     super();
 
@@ -121,49 +121,52 @@ public class VisionSubsystem extends SubsystemBase {
   // Declare these as class-level variables to persist across function calls
 
 
-private boolean CheckTagID(int TagId) {
+  private boolean CheckTagID(int TagId) {
     var result = piCamera1.getLatestResult();
-    int FoundID = -1; // Initialize FoundID to -1 (no ID found initially)
-    int CurrentID = -1; // Initialize CurrentID to -1 for cases where no targets are found
-
-    // Check if the camera result has targets
+    int FoundID = -1; 
+    int CurrentID = -1; 
     if (result.hasTargets()) {
         PhotonTrackedTarget target = result.getBestTarget();
-        FoundID = target.getFiducialId(); // Get the ID of the best target
-        CurrentID = FoundID; // Set the current ID to the found ID
-
-        // Reset the warning if a target is found and it's the desired tag
+        FoundID = target.getFiducialId(); 
+        CurrentID = FoundID;
         if (FoundID == TagId) {
-            lastCheckedTagId = TagId; // Update last checked ID to the current one
-            warningDisplayed = false; // Reset the warning since the tag is now found
-            return true; // Return true since the correct tag is found
+            lastCheckedTagId = TagId; 
+            warningDisplayed = false;
+            return true; 
         }
     }
-
-    // If no target is found or the correct tag isn't found
     if (FoundID != TagId) {
-        // Check if we're still checking the same TagId and whether the warning has been displayed
         if (lastCheckedTagId != TagId) {
-            // If a new TagId is being checked, reset the warning system
-            lastCheckedTagId = TagId; // Update the last checked ID to the new one
-            warningDisplayed = false; // Reset the warning display for the new tag
+            lastCheckedTagId = TagId;
+            warningDisplayed = false; 
         }
-
-        // Display the warning only if it hasn't been shown yet
         if (!warningDisplayed) {
             System.out.print("Warning April Tag: ");
             System.out.print(TagId);
             System.out.println(" Not found");
-            warningDisplayed = true; // Mark that the warning has been shown
+            warningDisplayed = true; 
         }
-
-        return false; // Return false as the correct tag is not found
+        return false; 
     }
+    return false; 
+  }
 
-    return false; // If no tag is found at all, return false
-}
+  public double FindTagIDyaw(int TagId) {
+    var result = piCamera1.getLatestResult();
+    double targetYaw = 0.0;
 
-
+    if (result.hasTargets()) {
+      for (var target : result.getTargets()) {
+          if (target.getFiducialId() == TagId) {
+              targetYaw = target.getYaw();
+              
+          }
+      }
+    } else {
+      targetYaw = 0.0;
+    }
+    return targetYaw;
+  }
 
 
 

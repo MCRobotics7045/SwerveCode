@@ -7,6 +7,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.util.Units;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -48,4 +49,7 @@ public final class Constants {
    public static final double xboxDeadzoneStickRight_X = 0.1; //this depends on controller 
    public static final double xboxDeadzoneStickRight_Y = 0.1;
 
+
+
+   public static final double kMaxAngularSpeed = Units.rotationsToRadians(2);
 }
