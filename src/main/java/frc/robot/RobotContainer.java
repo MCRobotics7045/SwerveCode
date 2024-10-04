@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.Constants;
 
 public class RobotContainer {
@@ -29,9 +30,11 @@ public class RobotContainer {
   private double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
   private final SendableChooser<Command> autoChooser;
   
+
   /* Setting up bindings for necessary control of the swerve drive platform */
   private final CommandXboxController joystick = new CommandXboxController(0); // My joystick
   private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
+  private final VisionSubsystem vision = new VisionSubsystem(); 
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
       .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
       .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
@@ -40,7 +43,7 @@ public class RobotContainer {
   private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
   
   private final Telemetry logger = new Telemetry(MaxSpeed);
-
+  
 
   private final XboxController XBOX = new XboxController(Constants.XBOX_CONTROLLER_PORT);
 
@@ -55,7 +58,8 @@ public class RobotContainer {
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
 
-     
+    
+
 
 
     
@@ -83,13 +87,13 @@ public class RobotContainer {
 
 
 
-    drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-        drivetrain.applyRequest(() -> drive 
+    // drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
+    //     drivetrain.applyRequest(() -> drive 
         
-        .withVelocityX(-XBOX.getLeftX() * MaxSpeed) // Apply deadzone on X-axis
-        .withVelocityY(-XBOX.getLeftY() * MaxSpeed) // Apply deadzone on Y-axis
-        .withRotationalRate(-XBOX.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
-        ));
+    //     .withVelocityX(-XBOX.getLeftX() * MaxSpeed) // Apply deadzone on X-axis
+    //     .withVelocityY(-XBOX.getLeftY() * MaxSpeed) // Apply deadzone on Y-axis
+    //     .withRotationalRate(-XBOX.getRightX()* MaxAngularRate) // Drive counterclockwise with negative X (left)
+    //     ));
 
 
 
@@ -98,13 +102,13 @@ public class RobotContainer {
 
     
 
-    // drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-    //     drivetrain.applyRequest(() -> drive 
+    drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
+        drivetrain.applyRequest(() -> drive 
         
-    //     .withVelocityX(-applyDeadzone(XBOX.getLeftX(), Constants.xboxDeadzoneStickLeft_X) * MaxSpeed) // Apply deadzone on X-axis
-    //     .withVelocityY(-applyDeadzone(XBOX.getLeftY(), Constants.xboxDeadzoneStickLeft_Y) * MaxSpeed) // Apply deadzone on Y-axis
-    //     .withRotationalRate(-applyDeadzone(XBOX.getRightX(), Constants.xboxDeadzoneStickRight_X) * MaxAngularRate) // Drive counterclockwise with negative X (left)
-    //     ));
+        .withVelocityX(-applyDeadzone(XBOX.getLeftX(), Constants.xboxDeadzoneStickLeft_X) * MaxSpeed) // Apply deadzone on X-axis
+        .withVelocityY(-applyDeadzone(XBOX.getLeftY(), Constants.xboxDeadzoneStickLeft_Y) * MaxSpeed) // Apply deadzone on Y-axis
+        .withRotationalRate(-applyDeadzone(XBOX.getRightX(), Constants.xboxDeadzoneStickRight_X) * MaxAngularRate) // Drive counterclockwise with negative X (left)
+        ));
 
 
     buttonA.whileTrue(drivetrain.applyRequest(() -> brake));
