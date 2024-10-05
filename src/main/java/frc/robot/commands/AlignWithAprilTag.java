@@ -4,51 +4,50 @@
 
 package frc.robot.commands;
 
+
+
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.Constants;
-import frc.robot.Telemetry;
+import static frc.robot.Constants.Vision.*;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.VisionSubsystem;
-import frc.robot.RobotContainer;
 
 public class AlignWithAprilTag extends Command {
   /** Creates a new AlignWithAprilTag. */
-  private RobotContainer container;
-  private container.drive drive;
   private VisionSubsystem Vision;
   private CommandSwerveDrivetrain swerve = TunerConstants.DriveTrain;
-  private double forward;
-  private double strafe;
+  private final SwerveRequest.FieldCentric drive;
   private double turn;
   private int TagID;
-  private final double VISION_TURN_kP = 0.01;;
- 
-  public AlignWithAprilTag(CommandSwerveDrivetrain m_swerve , double m_forward, double m_strafe, double m_turn,int m_TagID) {
+  
+  
+  public AlignWithAprilTag(CommandSwerveDrivetrain m_swerve,int m_TagID,SwerveRequest.FieldCentric drive) {
     // Use addRequirements() here to declare subsystem dependencies.
     swerve = m_swerve;
-    forward = m_forward;
-    strafe = m_strafe;
-    turn = m_turn;
     TagID = m_TagID;
+    this.drive = drive;
     addRequirements();
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    System.out.print("Align with AprilTag Init, Tag Id: ");
+    System.out.println(TagID);
+
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    turn = -1.0 * Vision.FindTagIDyaw(TagID) * VISION_TURN_kP * Constants.kMaxAngularSpeed;
+
+    turn = -1.0 * Vision.FindTagIDyaw(TagID) * VISION_TURN_kP * kMaxAngularSpeed;
     
     swerve.setDefaultCommand( // Drivetrain will execute this command periodically
         swerve.applyRequest(() -> drive 
-        
-        .withVelocityX(-applyDeadzone(XBOX.getLeftX(), Constants.xboxDeadzoneStickLeft_X) * MaxSpeed) // Apply deadzone on X-axis
-        .withVelocityY(-applyDeadzone(XBOX.getLeftY(), Constants.xboxDeadzoneStickLeft_Y) * MaxSpeed) // Apply deadzone on Y-axis
-        .withRotationalRate(-applyDeadzone(XBOX.getRightX(), Constants.xboxDeadzoneStickRight_X) * MaxAngularRate) // Drive counterclockwise with negative X (left)
+        .withRotationalRate(turn) // Drive counterclockwise with negative X (left)
         ));
 
   }
@@ -60,6 +59,11 @@ public class AlignWithAprilTag extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    if (Vision.FindTagIDyaw(TagID) >= ErrorMarginNegative && Vision.FindTagIDyaw(TagID) <= ErrorMarginPostive) {
+      return true;
+    } else {
+      return false;
+    }
+    
   }
 }

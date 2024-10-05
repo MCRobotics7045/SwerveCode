@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+// import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -16,25 +17,27 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj2.command.button.POVButton;
+import frc.robot.commands.AlignWithAprilTag;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.VisionSubsystem;
-import frc.robot.Constants;
+import static frc.robot.Constants.ControlandCommand.*;
+import static frc.robot.Constants.Vision.*;
+
 
 public class RobotContainer {
+  private final VisionSubsystem vision = new VisionSubsystem(); 
   private double MaxSpeed = TunerConstants.kSpeedAt12VoltsMps; // kSpeedAt12VoltsMps desired top speed
   private double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
   private final SendableChooser<Command> autoChooser;
-  
+  // private final Pigeon2 IMU_Pigeon = new Pigeon2(Constants.Pigeon2IMUid);
 
   /* Setting up bindings for necessary control of the swerve drive platform */
   private final CommandXboxController joystick = new CommandXboxController(0); // My joystick
   private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
-  private final VisionSubsystem vision = new VisionSubsystem(); 
+
   public final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
       .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
       .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
@@ -45,11 +48,12 @@ public class RobotContainer {
   private final Telemetry logger = new Telemetry(MaxSpeed);
   
 
-  private final XboxController XBOX = new XboxController(Constants.XBOX_CONTROLLER_PORT);
+  private final XboxController XBOX = new XboxController(XBOX_CONTROLLER_PORT);
 
   public double JoyX = XBOX.getLeftX();
   public double JoyY = XBOX.getLeftY();
 
+  
   public RobotContainer() {
     System.out.println("Robot Started ");
     configureBindings();
@@ -74,12 +78,12 @@ public class RobotContainer {
     // final POVButton dPadLeft = new POVButton(XBOX, 270);
     // final POVButton dPadUp = new POVButton(XBOX, 0);
     // final POVButton dPadDown = new POVButton(XBOX, 180);
-    final JoystickButton buttonY = new JoystickButton(XBOX, Constants.xboxYellowButton);
-    final JoystickButton buttonA = new JoystickButton(XBOX, Constants.xboxGreenButton);   
-    final JoystickButton buttonX = new JoystickButton(XBOX, Constants.xboxBlueButton);
-    final JoystickButton buttonB = new JoystickButton(XBOX, Constants.xboxRedButton);
-    final JoystickButton buttonRB = new JoystickButton(XBOX, Constants.xboxRBButton);
-    final JoystickButton buttonLB = new JoystickButton(XBOX, Constants.xboxLBButton);
+    // final JoystickButton buttonY = new JoystickButton(XBOX, Constants.xboxYellowButton);
+    final JoystickButton buttonA = new JoystickButton(XBOX, xboxGreenButton);   
+    final JoystickButton buttonX = new JoystickButton(XBOX, xboxBlueButton);
+    final JoystickButton buttonB = new JoystickButton(XBOX, xboxRedButton);
+    // final JoystickButton buttonRB = new JoystickButton(XBOX, Constants.xboxRBButton);
+    final JoystickButton buttonLB = new JoystickButton(XBOX, xboxLBButton);
     // final JoystickButton buttonStart = new JoystickButton(XBOX, Constants.xboxStartButton);
     // final JoystickButton buttonMENU = new JoystickButton(XBOX, Constants.xboxMenuButton);
    
@@ -105,12 +109,12 @@ public class RobotContainer {
     drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
         drivetrain.applyRequest(() -> drive 
         
-        .withVelocityX(-applyDeadzone(XBOX.getLeftX(), Constants.xboxDeadzoneStickLeft_X) * MaxSpeed) // Apply deadzone on X-axis
-        .withVelocityY(-applyDeadzone(XBOX.getLeftY(), Constants.xboxDeadzoneStickLeft_Y) * MaxSpeed) // Apply deadzone on Y-axis
-        .withRotationalRate(-applyDeadzone(XBOX.getRightX(), Constants.xboxDeadzoneStickRight_X) * MaxAngularRate) // Drive counterclockwise with negative X (left)
+        .withVelocityX(-applyDeadzone(XBOX.getLeftX(), xboxDeadzoneStickLeft_X) * MaxSpeed) // Apply deadzone on X-axis
+        .withVelocityY(-applyDeadzone(XBOX.getLeftY(), xboxDeadzoneStickLeft_Y) * MaxSpeed) // Apply deadzone on Y-axis
+        .withRotationalRate(-applyDeadzone(XBOX.getRightX(), xboxDeadzoneStickRight_X) * MaxAngularRate) // Drive counterclockwise with negative X (left)
         ));
 
-
+    buttonX.onTrue(new AlignWithAprilTag(drivetrain, Apriltag14, drive));
     buttonA.whileTrue(drivetrain.applyRequest(() -> brake));
     buttonB.whileTrue(drivetrain.applyRequest(() -> point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))));
     buttonLB.onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldRelative()));
@@ -128,6 +132,11 @@ public class RobotContainer {
     }
     return (stickvalue - Math.copySign(nonozone, stickvalue)) / (1.0 - nonozone);
 }
+
+  public CommandSwerveDrivetrain getSwerveDrivetrain() {
+    return drivetrain;
+  }
+
 
   public Command getAutonomousCommand() {
     return autoChooser.getSelected();

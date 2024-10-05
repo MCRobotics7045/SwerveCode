@@ -4,16 +4,33 @@
 
 package frc.robot.subsystems;
 
+import static frc.robot.Constants.Vision.*;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
+import frc.robot.RobotContainer;
 
 import java.lang.annotation.Target;
 
 import org.photonvision.PhotonCamera;
+import org.photonvision.estimation.TargetModel;
+import org.photonvision.simulation.PhotonCameraSim;
+import org.photonvision.simulation.SimCameraProperties;
+import org.photonvision.simulation.VisionSystemSim;
 // import org.photonvision.PhotonUtils;
 // import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
+import frc.robot.Telemetry;
+import frc.robot.RobotContainer;
 
 public class VisionSubsystem extends SubsystemBase {
   /** Creates a new VisionSubsystem. */
@@ -22,12 +39,41 @@ public class VisionSubsystem extends SubsystemBase {
 
   int FoundID; // Called in CheckID() pls dont call anywhere else
   int SelectedID;
+  int Cycle = 0;
+  private final Telemetry Tele = new Telemetry(0);
+  
   public static SendableChooser<Integer> AprilTagSelector;
   private int lastCheckedTagId = -1; // Keeps track of the last Tag ID checked
   private boolean warningDisplayed = false; // Flag to track if warning has been shown
   private boolean Targetseen = false;
+  
+ 
+  //----------------------------------------------------------------simulator------------------------------------------------
+  VisionSystemSim visionSim;
+  SimCameraProperties cameraProp;
   public VisionSubsystem() {
     super();
+    if (Robot.isSimulation()) {
+      System.out.println("Sim Started");
+      visionSim = new VisionSystemSim("main");
+      visionSim.addAprilTags(getTagLayout());
+      cameraProp = new SimCameraProperties();
+      cameraProp.setCalibration(640, 480, Rotation2d.fromDegrees(100));
+      cameraProp.setCalibError(0.25, 0.08);
+      cameraProp.setFPS(32);
+      cameraProp.setAvgLatencyMs(35);
+      cameraProp.setLatencyStdDevMs(5);
+      System.out.println("Cam Set Up Comp");
+      PhotonCameraSim cameraSim = new PhotonCameraSim(piCamera1, cameraProp);
+      // X is forward and back and Y is Left and right and Z is Up and Down This is at floor level cause Z=0
+      Translation3d robotToCameraTrl = new Translation3d(0.1, 0, 0.5);
+      // 15 Degrees up
+      Rotation3d robotToCameraRot = new Rotation3d(0, Math.toRadians(-15), 0);
+      Transform3d robotToCamera = new Transform3d(robotToCameraTrl, robotToCameraRot);
+      visionSim.addCamera(cameraSim, robotToCamera);
+      System.out.println("Vision Sim ready");
+    }
+
 
 
     AprilTagSelector = new SendableChooser<Integer>();
@@ -59,17 +105,29 @@ public class VisionSubsystem extends SubsystemBase {
       System.out.println("Warning No Tag Found");
     }
 
-
+    SmartDashboard.putBoolean("Found Tag?", CheckTagID(SelectedID));
   }
+
+  public void simulationPeriodic() {
+      
+      Pose2d currentPose = Tele.getCurrentPose();
+      visionSim.update(Tele.getCurrentPose());
+      visionSim.getDebugField();
+  }
+
+
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     // GetResults(2);
 
+    if (Cycle >= 50) {
+      Cycle = 0;
+      SmartDashboard.putBoolean("Found Tag?", CheckTagID(SelectedID));
+    }
     
-    
-
+    Cycle = Cycle + 1;
     if(AprilTagSelector.getSelected().equals(1)) {
       SelectedID = 1;
     }
@@ -112,11 +170,14 @@ public class VisionSubsystem extends SubsystemBase {
     else if (AprilTagSelector.getSelected().equals(14)){
       SelectedID = 14;
     }
-   SmartDashboard.putBoolean("Found Tag?", CheckTagID(SelectedID));
+
+   
 
   }
 
 
+
+  
 
   // Declare these as class-level variables to persist across function calls
 

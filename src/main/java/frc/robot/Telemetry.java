@@ -110,6 +110,10 @@ public class Telemetry {
         
     }
 
+    public Pose2d getCurrentPose() {
+        return m_lastPose;
+    }
+    
     public void resetPose(Pose2d newPose) {
         m_lastPose = newPose;  // Update the internal last pose reference
         lastTime = Utils.getCurrentTimeSeconds();  // Reset the time for velocity calculations
