@@ -4,7 +4,7 @@
 
 package frc.robot;
 
-// import com.ctre.phoenix6.hardware.Pigeon2;
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -32,7 +32,7 @@ public class RobotContainer {
   private double MaxSpeed = TunerConstants.kSpeedAt12VoltsMps; // kSpeedAt12VoltsMps desired top speed
   private double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
   private final SendableChooser<Command> autoChooser;
-  // private final Pigeon2 IMU_Pigeon = new Pigeon2(Constants.Pigeon2IMUid);
+  private final Pigeon2 IMU_Pigeon = new Pigeon2(Constants.Pigeon2IMUid);
 
   /* Setting up bindings for necessary control of the swerve drive platform */
   private final CommandXboxController joystick = new CommandXboxController(0); // My joystick
@@ -114,7 +114,7 @@ public class RobotContainer {
         .withRotationalRate(-applyDeadzone(XBOX.getRightX(), xboxDeadzoneStickRight_X) * MaxAngularRate) // Drive counterclockwise with negative X (left)
         ));
 
-    buttonX.onTrue(new AlignWithAprilTag(drivetrain, Apriltag14, drive));
+    buttonX.whileTrue(new AlignWithAprilTag(drivetrain, Apriltag5, drive,vision,IMU_Pigeon));
     buttonA.whileTrue(drivetrain.applyRequest(() -> brake));
     buttonB.whileTrue(drivetrain.applyRequest(() -> point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))));
     buttonLB.onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldRelative()));

@@ -1,10 +1,18 @@
 package frc.robot;
 
+import org.photonvision.simulation.PhotonCameraSim;
+import org.photonvision.simulation.SimCameraProperties;
+import org.photonvision.simulation.VisionSystemSim;
+
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain.SwerveDriveState;
-
+import org.photonvision.simulation.PhotonCameraSim;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
@@ -15,17 +23,43 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
-
+import org.photonvision.PhotonCamera;
+import org.photonvision.simulation.SimCameraProperties;
+import org.photonvision.simulation.VisionSystemSim;
+import org.photonvision.targeting.PhotonTrackedTarget;
+import static frc.robot.Constants.Vision.*;
 public class Telemetry {
     private final double MaxSpeed;
-
+    PhotonCamera piCamera1 = new PhotonCamera("Pi_Camera");
     /**
      * Construct a telemetry object, with the specified max speed of the robot
      * 
      * @param maxSpeed Maximum speed in meters per second
      */
+    VisionSystemSim visionSim;
+    SimCameraProperties cameraProp;
     public Telemetry(double maxSpeed) {
         MaxSpeed = maxSpeed;
+        if (Robot.isSimulation()) {
+            System.out.println("Sim Started");
+            visionSim = new VisionSystemSim("main");
+            visionSim.addAprilTags(getTagLayout());
+            cameraProp = new SimCameraProperties();
+            cameraProp.setCalibration(640, 480, Rotation2d.fromDegrees(100));
+            cameraProp.setCalibError(0.25, 0.08);
+            cameraProp.setFPS(32);
+            cameraProp.setAvgLatencyMs(35);
+            cameraProp.setLatencyStdDevMs(5);
+            System.out.println("Cam Set Up Comp");
+            PhotonCameraSim cameraSim = new PhotonCameraSim(piCamera1, cameraProp);
+            // X is forward and back and Y is Left and right and Z is Up and Down This is at floor level cause Z=0
+            Translation3d robotToCameraTrl = new Translation3d(0.1, 0, 0.5);
+            // 15 Degrees up
+            Rotation3d robotToCameraRot = new Rotation3d(0, Math.toRadians(-15), 0);
+            Transform3d robotToCamera = new Transform3d(robotToCameraTrl, robotToCameraRot);
+            visionSim.addCamera(cameraSim, robotToCamera);
+            System.out.println("Vision Sim ready");
+        }
     }
 
     /* What to publish over networktables for telemetry */
@@ -73,11 +107,14 @@ public class Telemetry {
             .append(new MechanismLigament2d("Direction", 0.1, 0, 0, new Color8Bit(Color.kWhite))),
     };
 
+   
     /* Accept the swerve drive state and telemeterize it to smartdashboard */
     public void telemeterize(SwerveDriveState state) {
         /* Telemeterize the pose */
         Pose2d pose = state.Pose;
         fieldTypePub.set("Field2d");
+        visionSim.update(pose);
+        visionSim.getDebugField();
         fieldPub.set(new double[] {
             pose.getX(),
             pose.getY(),
@@ -104,7 +141,7 @@ public class Telemetry {
             m_moduleDirections[i].setAngle(state.ModuleStates[i].angle);
             m_moduleSpeeds[i].setLength(state.ModuleStates[i].speedMetersPerSecond / (2 * MaxSpeed));
 
-            // SmartDashboard.putData("Module " + i, m_moduleMechanisms[i]);
+            SmartDashboard.putData("Module " + i, m_moduleMechanisms[i]);
         }
         
         
@@ -113,7 +150,7 @@ public class Telemetry {
     public Pose2d getCurrentPose() {
         return m_lastPose;
     }
-    
+
     public void resetPose(Pose2d newPose) {
         m_lastPose = newPose;  // Update the internal last pose reference
         lastTime = Utils.getCurrentTimeSeconds();  // Reset the time for velocity calculations

@@ -45,7 +45,7 @@ public final class Constants {
    
     
     public static class ControlandCommand {
-        
+
         public static final int xboxGreenButton = 1;
         public static final int xboxRedButton = 2;
         public static final int xboxBlueButton = 3;
@@ -83,9 +83,9 @@ public final class Constants {
             }
         
         public static final double kMaxAngularSpeed = Units.rotationsToRadians(2);
-        public static final double ErrorMarginPostive = 0.5;
-        public static final double ErrorMarginNegative = -0.5;
-        public static final double VISION_TURN_kP = 0.01;
+        public static final double ErrorMarginPostive = 2.0;
+        public static final double ErrorMarginNegative = -2.0;
+        public static final double VISION_TURN_kP = 0.5;
 
          //AprilTag Id THESE WILL BE NAMED TO THERE SPOTS ON FEILD FOR 2025
         public static final int Apriltag1 = 1;
@@ -104,7 +104,8 @@ public final class Constants {
         public static final int Apriltag14 = 14;
         public static final int Apriltag15 = 15;
         public static final int Apriltag16 = 16;
-
+        
+        public static int BestFoundTag = 0;
     }
 
 }
