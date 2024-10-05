@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.AlignWithAprilTag;
+import frc.robot.commands.RotateToYawCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.VisionSubsystem;
@@ -78,7 +79,7 @@ public class RobotContainer {
     // final POVButton dPadLeft = new POVButton(XBOX, 270);
     // final POVButton dPadUp = new POVButton(XBOX, 0);
     // final POVButton dPadDown = new POVButton(XBOX, 180);
-    // final JoystickButton buttonY = new JoystickButton(XBOX, Constants.xboxYellowButton);
+    final JoystickButton buttonY = new JoystickButton(XBOX, xboxYellowButton);
     final JoystickButton buttonA = new JoystickButton(XBOX, xboxGreenButton);   
     final JoystickButton buttonX = new JoystickButton(XBOX, xboxBlueButton);
     final JoystickButton buttonB = new JoystickButton(XBOX, xboxRedButton);
@@ -114,6 +115,7 @@ public class RobotContainer {
         .withRotationalRate(-applyDeadzone(XBOX.getRightX(), xboxDeadzoneStickRight_X) * MaxAngularRate) // Drive counterclockwise with negative X (left)
         ));
 
+    buttonY.onTrue(new RotateToYawCommand(drivetrain, IMU_Pigeon, 360));
     buttonX.whileTrue(new AlignWithAprilTag(drivetrain, Apriltag5, drive,vision,IMU_Pigeon));
     buttonA.whileTrue(drivetrain.applyRequest(() -> brake));
     buttonB.whileTrue(drivetrain.applyRequest(() -> point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))));
