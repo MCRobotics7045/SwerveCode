@@ -59,6 +59,9 @@ public class Telemetry {
             Transform3d robotToCamera = new Transform3d(robotToCameraTrl, robotToCameraRot);
             visionSim.addCamera(cameraSim, robotToCamera);
             System.out.println("Vision Sim ready");
+            cameraSim.enableRawStream(true);
+            cameraSim.enableProcessedStream(true);
+            cameraSim.enableDrawWireframe(true);
         }
     }
 
@@ -80,7 +83,7 @@ public class Telemetry {
     /* Keep a reference of the last pose to calculate the speeds */
     private Pose2d m_lastPose = new Pose2d();
     private double lastTime = Utils.getCurrentTimeSeconds();
-
+    
     /* Mechanisms to represent the swerve module states */
     private final Mechanism2d[] m_moduleMechanisms = new Mechanism2d[] {
         new Mechanism2d(1, 1),

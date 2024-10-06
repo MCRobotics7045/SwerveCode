@@ -1,6 +1,7 @@
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
+// Phoniex https://api.ctr-electronics.com/phoenix6/release/java/
 
 package frc.robot;
 
@@ -8,26 +9,27 @@ import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.commands.AlignWithAprilTag;
-import frc.robot.commands.RotateToYawCommand;
+// import frc.robot.commands.AlignWithAprilTag;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.VisionSubsystem;
 import static frc.robot.Constants.ControlandCommand.*;
 import static frc.robot.Constants.Vision.*;
-
-
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Angle;
 public class RobotContainer {
   private final VisionSubsystem vision = new VisionSubsystem(); 
   private double MaxSpeed = TunerConstants.kSpeedAt12VoltsMps; // kSpeedAt12VoltsMps desired top speed
@@ -38,17 +40,20 @@ public class RobotContainer {
   /* Setting up bindings for necessary control of the swerve drive platform */
   private final CommandXboxController joystick = new CommandXboxController(0); // My joystick
   private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
-
+  private final ChassisSpeeds Speed = new ChassisSpeeds(2.0, 2.0, 2.0);
   public final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
       .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
       .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
                                                                // driving in open loop
+  public final SwerveRequest.PointWheelsAt driveAngle = new SwerveRequest.PointWheelsAt();
   private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
   private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
-  
+
+  private final Rotation2d rotation = new Rotation2d(Math.toRadians(45));
+  private final double angleInDegrees = rotation.getDegrees();
   private final Telemetry logger = new Telemetry(MaxSpeed);
   
-
+  private final Translation2d Midpoint = new Translation2d(1.0,1.0);
   private final XboxController XBOX = new XboxController(XBOX_CONTROLLER_PORT);
 
   public double JoyX = XBOX.getLeftX();
@@ -64,7 +69,6 @@ public class RobotContainer {
 
 
     
-
 
 
     
@@ -115,8 +119,11 @@ public class RobotContainer {
         .withRotationalRate(-applyDeadzone(XBOX.getRightX(), xboxDeadzoneStickRight_X) * MaxAngularRate) // Drive counterclockwise with negative X (left)
         ));
 
-    buttonY.onTrue(new RotateToYawCommand(drivetrain, IMU_Pigeon, 360));
-    buttonX.whileTrue(new AlignWithAprilTag(drivetrain, Apriltag5, drive,vision,IMU_Pigeon));
+    // buttonY.onTrue(new RotateToYawCommand(drivetrain, IMU_Pigeon, 360));
+    buttonX.whileTrue(drivetrain.applyRequest(() -> driveAngle
+
+      .withModuleDirection(rotation)
+    ));
     buttonA.whileTrue(drivetrain.applyRequest(() -> brake));
     buttonB.whileTrue(drivetrain.applyRequest(() -> point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))));
     buttonLB.onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldRelative()));
@@ -126,6 +133,9 @@ public class RobotContainer {
     }
     drivetrain.registerTelemetry(logger::telemeterize);
   }
+
+ 
+
 
   //Deadzone command that takes XBOX value and matches the correct sign of +/_ and then subtracts it form the deadzone than divides to even it out
   private double applyDeadzone(double stickvalue, double nonozone) {
