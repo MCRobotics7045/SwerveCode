@@ -9,12 +9,6 @@ package frc.robot;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 
 /**
@@ -64,8 +58,8 @@ public final class Constants {
 
         //Deadzones
 
-        public static final double xboxDeadzoneStickLeft_X = 0.05; //very sorry for long name i just need to get it correct
-        public static final double xboxDeadzoneStickLeft_Y = 0.075;
+        public static final double xboxDeadzoneStickLeft_X = 0.1; //very sorry for long name i just need to get it correct
+        public static final double xboxDeadzoneStickLeft_Y = 0.1;
         public static final double xboxDeadzoneStickRight_X = 0.1; //this depends on controller 
         public static final double xboxDeadzoneStickRight_Y = 0.1;
     }

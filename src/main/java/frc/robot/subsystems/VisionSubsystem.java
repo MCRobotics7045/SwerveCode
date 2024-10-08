@@ -5,18 +5,14 @@
 package frc.robot.subsystems;
 
 import static frc.robot.Constants.Vision.*;
-import edu.wpi.first.math.geometry.Pose2d;
 
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Robot;
 import org.photonvision.PhotonCamera;
-
-import org.photonvision.simulation.SimCameraProperties;
-import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonTrackedTarget;
-import frc.robot.Telemetry;
+
 
 
 public class VisionSubsystem extends SubsystemBase {
@@ -27,13 +23,13 @@ public class VisionSubsystem extends SubsystemBase {
   int FoundID; // Called in CheckID() pls dont call anywhere else
   int SelectedID;
   int Cycle = 0;
-  private final Telemetry Tele = new Telemetry(0);
+
   
   public static SendableChooser<Integer> AprilTagSelector;
   private int lastCheckedTagId = -1; // Keeps track of the last Tag ID checked
   private boolean warningDisplayed = false; // Flag to track if warning has been shown
-  private boolean Targetseen = false;
-  
+  private Pose3d Pose;
+
   double yaw;
  
   //----------------------------------------------------------------simulator------------------------------------------------
@@ -116,7 +112,7 @@ public class VisionSubsystem extends SubsystemBase {
   private boolean CheckTagID(int TagId) {
     var result = piCamera1.getLatestResult();
     int FoundID = -1; 
-    int CurrentID = -1;
+    int CurrentID;
     
     if (result.hasTargets()) {
         PhotonTrackedTarget target = result.getBestTarget();
@@ -162,9 +158,7 @@ public class VisionSubsystem extends SubsystemBase {
     return targetYaw;
   }
 
-
-
-
+ 
 
 
 

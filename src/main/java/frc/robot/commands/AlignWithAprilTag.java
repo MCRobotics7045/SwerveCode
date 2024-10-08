@@ -1,69 +1,96 @@
-// // Copyright (c) FIRST and other WPILib contributors.
-// // Open Source Software; you can modify and/or share it under the terms of
-// // the WPILib BSD license file in the root directory of this project.
+package frc.robot.commands;
 
-// package frc.robot.commands;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
+import edu.wpi.first.math.controller.PIDController;
+
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
+import java.util.function.Supplier;
+
+
+import org.photonvision.PhotonCamera;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 
 
-// import com.ctre.phoenix6.StatusSignal;
-// import com.ctre.phoenix6.hardware.Pigeon2;
-// import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
-// import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
-// import com.ctre.phoenix6.mechanisms.swerve.utility.PhoenixPIDController;
 
-// import edu.wpi.first.math.MathUtil;
-// import edu.wpi.first.math.geometry.Rotation2d;
-// import edu.wpi.first.math.geometry.Translation2d;
-// import edu.wpi.first.wpilibj2.command.Command;
-// import frc.robot.subsystems.CommandSwerveDrivetrain;
-// import static frc.robot.Constants.Vision.*;
+public class AlignWithAprilTag extends Command{
+    private final CommandSwerveDrivetrain m_swerve;
+    private final SwerveRequest.FieldCentric m_drive;
 
-// import frc.robot.Constants;
-// import frc.robot.generated.TunerConstants;
-// import frc.robot.subsystems.VisionSubsystem;
+    private final PIDController turnController = new PIDController(0.5, .5, .0);
+    int shottimeout = 0;
+    final double MaxAngularRate = 0.4 * Math.PI;
+    private final PhotonCamera m_camera;
+    private final double yawTol = 2.0;
+    private int CycleNeeded = 2;
+    private int Cycle = 0;
 
-// public class AlignWithAprilTag extends Command {
-//   /** Creates a new AlignWithAprilTag. */
-//   private final SwerveRequest.ApplyChassisSpeeds drivetrain = new SwerveRequest.ApplyChassisSpeeds();
+    public AlignWithAprilTag(CommandSwerveDrivetrain swerve, SwerveRequest.FieldCentric drive,PhotonCamera picam) {
+        m_swerve = swerve;
+        m_drive = drive;
+        m_camera = picam;
 
-//   private final CommandSwerveDrivetrain swerve;
-//   private final Translation2d
-//   public AlignWithAprilTag(CommandSwerveDrivetrain swerve) {
-//     // Use addRequirements() here to declare subsystem dependencies.
-//     this.swerve = swerve;
-//     addRequirements(swerve);
-//   }
 
-//   // Called when the command is initially scheduled.
-//   @Override
-//   public void initialize() {
 
-//   }
+    }
 
-//   // Called every time the scheduler runs while the command is scheduled.
-//   @Override
-//   public void execute() {
-
-//     swerve.applyRequest(drivetrain.CenterOfRotation(0,0))
-     
-//   }
-
-//   // Called once the command ends or is interrupted.
-//   @Override
-//   public void end(boolean interrupted) {
-  
-//   }
-
-//   // Returns true when the command should end.
-//   @Override
-//   public boolean isFinished() {
+    @Override
+  public void initialize() {
+    // Called when the command is initially scheduled.
+    System.out.println("Called:AlignWithAprilTag");
     
-   
-//       return true;
+  }
 
-
- 
+  @Override
+  public void execute() {
     
-//   }
-// }
+      
+    var result = m_camera.getLatestResult();
+
+    if (result.hasTargets()) {
+        PhotonTrackedTarget target = result.getBestTarget();
+        double rotationSpeed = turnController.calculate(target.getYaw(), 0);
+        Supplier<SwerveRequest> requestSupplier =  () -> m_drive.withRotationalRate(rotationSpeed*MaxAngularRate);
+        m_swerve.setControl(requestSupplier.get());
+    }
+
+          
+      }
+      
+
+    // Called every time Command is scheduled
+
+  @Override
+  public void end(boolean interrupted) {
+    if (interrupted) {
+        System.out.println("AlignWithAprilTag stopped reason: interrupted");
+    } else {
+        System.out.println("AlignWithAprilTag stopped reason: Ended");
+    }
+    //Called when command ends or is interrupted
+  }
+
+  @Override
+  public boolean isFinished() {
+    //Called when Command is finished
+    var result = m_camera.getLatestResult();
+    if (result.hasTargets()) {
+      PhotonTrackedTarget target = result.getBestTarget();
+      double yawError = target.getYaw();
+      if (Math.abs(yawError) <= yawTol) {
+        Cycle++;
+      } else {
+        Cycle = 0;
+      }
+      return Cycle >= CycleNeeded;
+    }
+    return false;
+  }
+
+
+    
+
+
+    
+}

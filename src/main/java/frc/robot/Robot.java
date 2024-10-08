@@ -8,19 +8,51 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.VisionSubsystem;
+
+import java.util.Optional;
+
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
   private VisionSubsystem vision = new VisionSubsystem();
   private RobotContainer m_robotContainer;
+  Optional<Alliance> ally;
 
   @Override
   public void robotInit() {
+    //Has To stay on Top
     m_robotContainer = new RobotContainer();
+    //Has To stay on Top
+    
+    SmartDashboard.putString("Event Name", DriverStation.getEventName());
+    SmartDashboard.putString("Alliance", "Cant Find");
   }
 
   @Override
   public void robotPeriodic() {
+    //Has To stay on Top
+    //Has To stay on Top
     CommandScheduler.getInstance().run(); 
+    //Has To stay on Top
+    //Has To stay on Top
+
+    ally =  DriverStation.getAlliance();
+    SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
+    SmartDashboard.putNumber("Match Round", DriverStation.getMatchNumber());
+    if (ally.isPresent()) {
+      if (ally.get() == Alliance.Red) {
+          SmartDashboard.putString("Alliance", "Red");
+      }
+      if (ally.get() == Alliance.Blue) {
+          SmartDashboard.putString("Alliance", "Blue");
+      }
+    } else {
+      SmartDashboard.putString("Alliance", "Cant Find");
+    }
+  
   }
 
   @Override
