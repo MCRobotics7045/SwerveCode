@@ -19,13 +19,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.subsystems.IntakeSub;
 import frc.robot.commands.AlignWithAprilTag;
 // import frc.robot.commands.AlignWithAprilTag;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.VisionSubsystem;
 import static frc.robot.Constants.ControlandCommand.*;
-
+import frc.robot.commands.FireCommand;
 import org.photonvision.PhotonCamera;
 
 
@@ -53,8 +54,10 @@ public class RobotContainer {
   private final XboxController XBOX = new XboxController(XBOX_CONTROLLER_PORT);
   PhotonCamera piCamera1 = new PhotonCamera("Pi_Camera");
 
+  private final IntakeSub intake = new IntakeSub();
 
   public RobotContainer() {
+    
     System.out.println("Robot Started ");
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
@@ -72,7 +75,7 @@ public class RobotContainer {
     // final POVButton dPadDown = new POVButton(XBOX, 180);
     final JoystickButton buttonY = new JoystickButton(XBOX, xboxYellowButton);
     final JoystickButton buttonA = new JoystickButton(XBOX, xboxGreenButton);   
-    // final JoystickButton buttonX = new JoystickButton(XBOX, xboxBlueButton);
+    final JoystickButton buttonX = new JoystickButton(XBOX, xboxBlueButton);
     final JoystickButton buttonB = new JoystickButton(XBOX, xboxRedButton);
     // final JoystickButton buttonRB = new JoystickButton(XBOX, xboxRBButton);
     final JoystickButton buttonLB = new JoystickButton(XBOX, xboxLBButton);
@@ -85,6 +88,7 @@ public class RobotContainer {
         .withVelocityY(-applyDeadzone(XBOX.getLeftY(), xboxDeadzoneStickLeft_Y) * MaxSpeed) // Apply deadzone on Y-axis
         .withRotationalRate(-applyDeadzone(XBOX.getRightX(), xboxDeadzoneStickRight_X) * MaxAngularRate) // Drive counterclockwise with negative X (left)
         ));
+    buttonX.onTrue(new FireCommand(intake, vision));
     buttonY.whileTrue(new AlignWithAprilTag(drivetrain, drive,piCamera1));
     buttonA.whileTrue(drivetrain.applyRequest(() -> brake));
     buttonB.whileTrue(drivetrain.applyRequest(() -> point.withModuleDirection(new Rotation2d(-XBOX.getLeftY(), -XBOX.getLeftX()))));

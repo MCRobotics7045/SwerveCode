@@ -35,8 +35,14 @@ public final class Constants {
     //Align With April Tag Command
     
 
+    public static class IntakeSubsytem {
+        public static final int IntakeIndexerId = 11;
+    }
 
-   
+    public static class LEDConstants {
+        public static final int Strip1PWM = 1;
+        
+    }
     
     public static class ControlandCommand {
 

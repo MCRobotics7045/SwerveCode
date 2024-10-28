@@ -14,6 +14,7 @@
       "/Pose": "Field2d",
       "/SmartDashboard/AprilTag Selection": "String Chooser",
       "/SmartDashboard/Auto Chooser": "String Chooser",
+      "/SmartDashboard/Intake Mech": "Mechanism2d",
       "/SmartDashboard/Module 0": "Mechanism2d",
       "/SmartDashboard/Module 1": "Mechanism2d",
       "/SmartDashboard/Module 2": "Mechanism2d",
@@ -22,6 +23,11 @@
     },
     "windows": {
       "/SmartDashboard/Auto Chooser": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/Intake Mech": {
         "window": {
           "visible": true
         }

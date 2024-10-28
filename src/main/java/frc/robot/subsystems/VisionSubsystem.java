@@ -109,7 +109,18 @@ public class VisionSubsystem extends SubsystemBase {
     return result.getBestTarget(); 
   }
 
-  private boolean CheckTagID(int TagId) {
+  public double FindPitch() {
+    var result = piCamera1.getLatestResult();
+    if (result.hasTargets()) {
+        PhotonTrackedTarget target = result.getBestTarget();
+        double Pitch = target.getPitch();  
+        double correctedPitch = Pitch + 10;
+        return Pitch;
+    }
+    return 0.0;  // Or some other default value if no target is found
+}
+  
+  public boolean CheckTagID(int TagId) {
     var result = piCamera1.getLatestResult();
     int FoundID = -1; 
     int CurrentID;
