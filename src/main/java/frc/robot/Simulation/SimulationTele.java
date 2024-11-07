@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.robot.Simulation;
 
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
@@ -22,10 +22,13 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
+import frc.robot.Robot;
+
+import static frc.robot.Constants.Constants.Vision.*;
+
 import org.photonvision.PhotonCamera;
-import static frc.robot.Constants.Vision.*;
-public class Telemetry {
-    private final double MaxSpeed;
+public class SimulationTele {
+
     PhotonCamera piCamera1 = new PhotonCamera("Pi_Camera");
     /**
      * Construct a telemetry object, with the specified max speed of the robot
@@ -34,8 +37,7 @@ public class Telemetry {
      */
     VisionSystemSim visionSim;
     SimCameraProperties cameraProp;
-    public Telemetry(double maxSpeed) {
-        MaxSpeed = maxSpeed;
+    public SimulationTele() {
         if (Robot.isSimulation()) {
             System.out.println("Sim Started");
             visionSim = new VisionSystemSim("main");
@@ -137,15 +139,15 @@ public class Telemetry {
         odomPeriod.set(state.OdometryPeriod);
 
         /* Telemeterize the module's states */
-        if (Robot.isSimulation()) {
-            for (int i = 0; i < 4; ++i) {
-            m_moduleSpeeds[i].setAngle(state.ModuleStates[i].angle);
-            m_moduleDirections[i].setAngle(state.ModuleStates[i].angle);
-            m_moduleSpeeds[i].setLength(state.ModuleStates[i].speedMetersPerSecond / (2 * MaxSpeed));
+        // if (Robot.isSimulation()) {
+        //     for (int i = 0; i < 4; ++i) {
+        //     m_moduleSpeeds[i].setAngle(state.ModuleStates[i].angle);
+        //     m_moduleDirections[i].setAngle(state.ModuleStates[i].angle);
+        //     m_moduleSpeeds[i].setLength(state.ModuleStates[i].speedMetersPerSecond / (2 * MaxSpeed));
 
-            SmartDashboard.putData("Module " + i, m_moduleMechanisms[i]);
-        }
-        }
+        //     SmartDashboard.putData("Module " + i, m_moduleMechanisms[i]);
+        // }
+        // }
         
         
         

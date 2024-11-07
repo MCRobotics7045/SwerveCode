@@ -5,11 +5,12 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package frc.robot;
+package frc.robot.Constants;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Unit;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -23,6 +24,14 @@ import edu.wpi.first.math.util.Units;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+    public static final double robotWidthInches = 30;
+    public static final double robotLengthInches  = 30;
+    public static final double WheelRadiusInches = 4;
+    public static final double robotWidthMeters = Units.inchesToMeters(robotWidthInches);
+    public static final double robotLengthMeters = Units.inchesToMeters(robotLengthInches);
+    public static final double WheelRadiusMeters = Units.inchesToMeters(WheelRadiusInches);
+
+
     public static final boolean kDebug = true;
 
     //Can IDS
@@ -32,19 +41,19 @@ public final class Constants {
     
 
 
-    //Align With April Tag Command
-    
-
-    public static class IntakeSubsytem {
-        public static final int IntakeIndexerId = 11;
-    }
+    public static class SwerveConstants {
+        public static final double MaxSpeed = Units.feetToMeters(15.0);
+        public static final double MaxRotationSpeed = 1.25;
+        public static final double angularSpeed = MaxSpeed / (Math.hypot(robotLengthMeters, robotWidthMeters) / 2) / MaxRotationSpeed;
+        public static final double SlewRate = 20;
+    } 
 
     public static class LEDConstants {
         public static final int Strip1PWM = 1;
         
     }
     
-    public static class ControlandCommand {
+    public static class InputConstants {
 
         public static final int xboxGreenButton = 1;
         public static final int xboxRedButton = 2;
@@ -62,12 +71,8 @@ public final class Constants {
         // USB Ports
         public static final int XBOX_CONTROLLER_PORT = 0;
 
-        //Deadzones
 
-        public static final double xboxDeadzoneStickLeft_X = 0.1; //very sorry for long name i just need to get it correct
-        public static final double xboxDeadzoneStickLeft_Y = 0.1;
-        public static final double xboxDeadzoneStickRight_X = 0.1; //this depends on controller 
-        public static final double xboxDeadzoneStickRight_Y = 0.1;
+
     }
 
 

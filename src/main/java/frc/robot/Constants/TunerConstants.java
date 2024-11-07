@@ -1,4 +1,4 @@
-package frc.robot.generated;
+package frc.robot.Constants;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -12,7 +12,7 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.ClosedLoopOutputType;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants.SteerFeedbackType;
 
 import edu.wpi.first.math.util.Units;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Swerve.SwerveSubsystem;
 
 //DOCS
 // https://v6.docs.ctr-electronics.com/en/stable/docs/tuner/tuner-swerve/index.html
@@ -83,7 +83,7 @@ public class TunerConstants {
     private static final boolean kInvertRightSide = true;
 
     private static final String kCANbusName = "";
-    private static final int kPigeonId = 0;
+    private static final int kPigeonId = 54;
 
 
     // These are only used for simulation
@@ -177,6 +177,6 @@ public class TunerConstants {
             kBackRightSteerMotorId, kBackRightDriveMotorId, kBackRightEncoderId, kBackRightEncoderOffset, Units.inchesToMeters(kBackRightXPosInches), Units.inchesToMeters(kBackRightYPosInches), kInvertRightSide)
             .withSteerMotorInverted(kBackRightSteerInvert);
 
-    public static final CommandSwerveDrivetrain DriveTrain = new CommandSwerveDrivetrain(DrivetrainConstants, FrontLeft,
+    public static final SwerveSubsystem DriveTrain = new SwerveSubsystem(DrivetrainConstants, FrontLeft,
             FrontRight, BackLeft, BackRight);
 }

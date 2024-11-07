@@ -4,13 +4,24 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.Vision.*;
-
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.photonvision.EstimatedRobotPose;
+import static frc.robot.Constants.Constants.Vision.*;
+
+import java.io.IOException;
+
 import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 
@@ -23,8 +34,9 @@ public class VisionSubsystem extends SubsystemBase {
   int FoundID; // Called in CheckID() pls dont call anywhere else
   int SelectedID;
   int Cycle = 0;
-
-  
+  AprilTagFieldLayout fieldLayout;
+  PhotonPoseEstimator photonPoseEstimator;
+  public Transform3d camPose;
   public static SendableChooser<Integer> AprilTagSelector;
   private int lastCheckedTagId = -1; // Keeps track of the last Tag ID checked
   private boolean warningDisplayed = false; // Flag to track if warning has been shown
@@ -32,7 +44,7 @@ public class VisionSubsystem extends SubsystemBase {
 
   double yaw;
  
-  //----------------------------------------------------------------simulator------------------------------------------------
+ 
 
   public VisionSubsystem() {
     super();
@@ -55,6 +67,7 @@ public class VisionSubsystem extends SubsystemBase {
     SmartDashboard.putData("AprilTag Selection", AprilTagSelector);
 
     var result = piCamera1.getLatestResult();
+
     if (result.hasTargets()) {
       PhotonTrackedTarget target = result.getBestTarget();
       int StartupTargetID = target.getFiducialId();
@@ -66,6 +79,19 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     SmartDashboard.putBoolean("Found Tag?", CheckTagID(SelectedID));
+
+     try {
+			fieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2024Crescendo.m_resourceFile);
+		} catch (IOException exception) {
+			System.out.println("Couldn't Find April Tag Layout File");
+			exception.printStackTrace();
+		}
+
+    camPose = new Transform3d(
+      new Translation3d(0,0,Units.inchesToMeters(5)), //dont know correct
+      new Rotation3d(0,Units.degreesToRadians(15), 0));
+      
+    photonPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, camPose);
   }
 
   

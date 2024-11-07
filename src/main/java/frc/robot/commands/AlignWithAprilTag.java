@@ -4,7 +4,8 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import edu.wpi.first.math.controller.PIDController;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Swerve.SwerveSubsystem;
+
 import java.util.function.Supplier;
 
 
@@ -15,7 +16,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 
 public class AlignWithAprilTag extends Command{
-    private final CommandSwerveDrivetrain m_swerve;
+    private final SwerveSubsystem m_swerve;
     private final SwerveRequest.FieldCentric m_drive;
 
     private final PIDController turnController = new PIDController(0.5, .5, .0);
@@ -26,7 +27,7 @@ public class AlignWithAprilTag extends Command{
     private int CycleNeeded = 2;
     private int Cycle = 0;
 
-    public AlignWithAprilTag(CommandSwerveDrivetrain swerve, SwerveRequest.FieldCentric drive,PhotonCamera picam) {
+    public AlignWithAprilTag(SwerveSubsystem swerve, SwerveRequest.FieldCentric drive,PhotonCamera picam) {
         m_swerve = swerve;
         m_drive = drive;
         m_camera = picam;
