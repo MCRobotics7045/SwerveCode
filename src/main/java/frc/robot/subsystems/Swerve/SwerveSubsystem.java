@@ -1,6 +1,9 @@
 package frc.robot.subsystems.Swerve;
 
+import java.util.Optional;
 import java.util.function.Supplier;
+
+import org.photonvision.EstimatedRobotPose;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
@@ -13,7 +16,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
-
+import org.photonvision.EstimatedRobotPose;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -27,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.Constants;
 import frc.robot.Constants.TunerConstants;
+import static frc.robot.RobotContainer.VISION;
 import static frc.robot.Constants.Constants.SwerveConstants.*;
 /**
  * Class that extends the Phoenix SwerveDrivetrain class and implements
@@ -39,6 +43,7 @@ public class SwerveSubsystem extends SwerveDrivetrain implements Subsystem {
     private final SwerveRequest.ApplyChassisSpeeds AutoRequest = new SwerveRequest.ApplyChassisSpeeds();
     Field2d field = new Field2d();
     public Double SpeedMultipler = 1.0;
+    private Optional<EstimatedRobotPose> estimated;
 
     
     public SwerveSubsystem(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
@@ -123,13 +128,23 @@ public class SwerveSubsystem extends SwerveDrivetrain implements Subsystem {
         return getState().Pose;
     }
 
+    public void UpdatePose() {
+        if (estimated.isPresent()){
+            EstimatedRobotPose Given = estimated.get();
+            addVisionMeasurement(Given.estimatedPose.toPose2d(),Given.timestampSeconds);
+            
+        }
+    }
     @Override
     public void periodic() {
         
         field.setRobotPose(getPose());
         SmartDashboard.putString("Pose", getPose().toString());
-        
+        estimated = VISION.EST_POSE_RETURN();
+        if(DriverStation.isTeleop() || DriverStation.isDisabled() ){
+            UpdatePose();
+            
     }
 
-    
+    }
 }

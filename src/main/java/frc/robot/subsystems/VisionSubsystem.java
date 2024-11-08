@@ -18,6 +18,7 @@ import org.photonvision.EstimatedRobotPose;
 import static frc.robot.Constants.Constants.Vision.*;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -28,7 +29,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class VisionSubsystem extends SubsystemBase {
   /** Creates a new VisionSubsystem. */
-  PhotonCamera piCamera1 = new PhotonCamera("Pi_Camera");
+  public PhotonCamera poseCam; 
   // PhotonCamera piCamera2 = new PhotonCamera("Pi_Camera2");
 
   int FoundID; // Called in CheckID() pls dont call anywhere else
@@ -41,14 +42,14 @@ public class VisionSubsystem extends SubsystemBase {
   private int lastCheckedTagId = -1; // Keeps track of the last Tag ID checked
   private boolean warningDisplayed = false; // Flag to track if warning has been shown
   private Pose3d Pose;
-
+  boolean done;
   double yaw;
  
  
 
   public VisionSubsystem() {
     super();
-    
+    poseCam = new PhotonCamera("Pi_Camera");
     AprilTagSelector = new SendableChooser<Integer>();
     AprilTagSelector.setDefaultOption("Tag 1", 1);
     AprilTagSelector.addOption("Tag 2", 2);
@@ -66,7 +67,7 @@ public class VisionSubsystem extends SubsystemBase {
     AprilTagSelector.addOption("Tag 14", 14);
     SmartDashboard.putData("AprilTag Selection", AprilTagSelector);
 
-    var result = piCamera1.getLatestResult();
+    var result = poseCam.getLatestResult();
 
     if (result.hasTargets()) {
       PhotonTrackedTarget target = result.getBestTarget();
@@ -91,7 +92,7 @@ public class VisionSubsystem extends SubsystemBase {
       new Translation3d(0,0,Units.inchesToMeters(5)), //dont know correct
       new Rotation3d(0,Units.degreesToRadians(15), 0));
       
-    photonPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, camPose);
+    photonPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, poseCam, camPose);
   }
 
   
@@ -128,7 +129,7 @@ public class VisionSubsystem extends SubsystemBase {
   // Declare these as class-level variables to persist across function calls
 
   private PhotonTrackedTarget selectBestTarget() {
-    var result = piCamera1.getLatestResult();
+    var result = poseCam.getLatestResult();
     if (!result.hasTargets()) {
         return null; 
     }
@@ -136,7 +137,7 @@ public class VisionSubsystem extends SubsystemBase {
   }
 
   public double FindPitch() {
-    var result = piCamera1.getLatestResult();
+    var result = poseCam.getLatestResult();
     if (result.hasTargets()) {
         PhotonTrackedTarget target = result.getBestTarget();
         double Pitch = target.getPitch();  
@@ -147,7 +148,7 @@ public class VisionSubsystem extends SubsystemBase {
 }
   
   public boolean CheckTagID(int TagId) {
-    var result = piCamera1.getLatestResult();
+    var result = poseCam.getLatestResult();
     int FoundID = -1; 
     int CurrentID;
     
@@ -179,7 +180,7 @@ public class VisionSubsystem extends SubsystemBase {
 
   
   public double FindTagIDyaw(int TagId) {
-    var result = piCamera1.getLatestResult();
+    var result = poseCam.getLatestResult();
     double targetYaw = 0.0;
 
     if (result.hasTargets()) {
@@ -193,10 +194,30 @@ public class VisionSubsystem extends SubsystemBase {
       targetYaw = 0.0;
     }
     return targetYaw;
+
+
+
+    
+
+
   }
 
  
+  public Optional<EstimatedRobotPose> EST_POSE_RETURN() {
+		if (poseCam.getLatestResult().getTargets().size() != 2){
+            done = false;
+            return Optional.empty();
+        }
+    if(poseCam.getLatestResult().getTargets().isEmpty() || poseCam.getLatestResult().getTargets().get(0).getFiducialId() == 5 || poseCam.getLatestResult().getTargets().get(0).getFiducialId() == 6 ){
+            done = false;
+            return Optional.empty();
+    }
 
+        done = true;
+        return photonPoseEstimator.update();
+        
+        
+	}
 
 
 
