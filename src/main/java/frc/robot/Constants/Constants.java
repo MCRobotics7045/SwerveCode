@@ -26,7 +26,7 @@ import edu.wpi.first.math.util.Units;
 public final class Constants {
     public static final double robotWidthInches = 30;
     public static final double robotLengthInches  = 30;
-    public static final double WheelRadiusInches = 4;
+    public static final double WheelRadiusInches = 2;
     public static final double robotWidthMeters = Units.inchesToMeters(robotWidthInches);
     public static final double robotLengthMeters = Units.inchesToMeters(robotLengthInches);
     public static final double WheelRadiusMeters = Units.inchesToMeters(WheelRadiusInches);
@@ -42,10 +42,10 @@ public final class Constants {
 
 
     public static class SwerveConstants {
-        public static final double MaxSpeed = Units.feetToMeters(15.0);
-        public static final double MaxRotationSpeed = 1.25;
+        public static final double MaxSpeed = Units.feetToMeters(10); // 15
+        public static final double MaxRotationSpeed = 4 * Math.PI;
         public static final double angularSpeed = MaxSpeed / (Math.hypot(robotLengthMeters, robotWidthMeters) / 2) / MaxRotationSpeed;
-        public static final double SlewRate = 20;
+        public static final double SlewRate = 4;
     } 
 
     public static class LEDConstants {

@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
-  private VisionSubsystem vision = new VisionSubsystem();
+  // private VisionSubsystem vision = new VisionSubsystem();
   private RobotContainer m_robotContainer;
   Optional<Alliance> ally;
 
@@ -105,6 +105,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void simulationPeriodic() {
-    vision.simulationPeriodic();
+    // vision.simulationPeriodic();
   }
 }

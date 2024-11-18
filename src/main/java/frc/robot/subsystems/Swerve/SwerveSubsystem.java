@@ -28,9 +28,11 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import frc.robot.RobotContainer;
 import frc.robot.Constants.Constants;
 import frc.robot.Constants.TunerConstants;
-import static frc.robot.RobotContainer.VISION;
+// 
+
 import static frc.robot.Constants.Constants.SwerveConstants.*;
 /**
  * Class that extends the Phoenix SwerveDrivetrain class and implements
@@ -63,6 +65,7 @@ public class SwerveSubsystem extends SwerveDrivetrain implements Subsystem {
     }
 
    
+
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
         return run(() -> this.setControl(requestSupplier.get()));
     }
@@ -110,7 +113,7 @@ public class SwerveSubsystem extends SwerveDrivetrain implements Subsystem {
                                             MaxSpeed,
                                             driveBaseRadius,
                                             new ReplanningConfig()),
-            () -> DriverStation.getAlliance().orElse(Alliance.Blue)==Alliance.Red, // Assume the path needs to be flipped for Red vs Blue, this is normally the case
+            () -> RobotContainer.IsRed(), // Assume the path needs to be flipped for Red vs Blue, this is normally the case
             this); // Subsystem for requirements
     }
 
@@ -140,11 +143,11 @@ public class SwerveSubsystem extends SwerveDrivetrain implements Subsystem {
         
         field.setRobotPose(getPose());
         SmartDashboard.putString("Pose", getPose().toString());
-        estimated = VISION.EST_POSE_RETURN();
-        if(DriverStation.isTeleop() || DriverStation.isDisabled() ){
-            UpdatePose();
+        // estimated = VISION.EST_POSE_RETURN();
+        // if(DriverStation.isTeleop() || DriverStation.isDisabled() ){
+        //     UpdatePose();
             
-    }
+    // }
 
     }
 }

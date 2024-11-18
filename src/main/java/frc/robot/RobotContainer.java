@@ -32,7 +32,7 @@ public class RobotContainer {
 
  
   public static final SwerveSubsystem SWERVE = TunerConstants.DriveTrain;
-  public static final VisionSubsystem VISION  = new VisionSubsystem(); 
+  // public static final VisionSubsystem VISION  = new VisionSubsystem(); 
 
   SendableChooser<Command> autoChooser = new SendableChooser<>();
   public RobotContainer() {

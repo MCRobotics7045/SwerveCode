@@ -49,14 +49,17 @@ public class TunerConstants {
 
     // Initial configs for the drive and steer motors and the CANcoder; these cannot be null.
     // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
-    private static final TalonFXConfiguration driveInitialConfigs = new TalonFXConfiguration();
+    private static final TalonFXConfiguration driveInitialConfigs = new TalonFXConfiguration()
+        .withCurrentLimits(
+                new CurrentLimitsConfigs().withSupplyCurrentLimit(20).withSupplyCurrentLimitEnable(true)
+        );
     private static final TalonFXConfiguration steerInitialConfigs = new TalonFXConfiguration()
         .withCurrentLimits(
             new CurrentLimitsConfigs()
                 // Swerve azimuth does not require much torque output, so we can set a relatively low
                 // stator current limit to help avoid brownouts without impacting performance.
-                .withStatorCurrentLimit(60)
-                .withStatorCurrentLimitEnable(true)
+                .withSupplyCurrentLimit(20)
+                .withSupplyCurrentLimitEnable(true)
         );
     private static final CANcoderConfiguration cancoderInitialConfigs = new CANcoderConfiguration();
     // Configs for the Pigeon 2 leave this null 
@@ -69,7 +72,7 @@ public class TunerConstants {
     public static final double kSpeedAt12VoltsMps = 9.46;
     
     // The stator current at which the wheels start to slip;
-    private static final double kSlipCurrentA = 150.0;
+    private static final double kSlipCurrentA = 170;
 
     // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
     private static final double kCoupleRatio = 3.5714285714285716;
