@@ -35,7 +35,7 @@ public final class Constants {
     public static final boolean kDebug = true;
 
     //Can IDS
-    public static final int Pigeon2IMUid = 0;
+    public static final int Pigeon2Iid = 54;
 
     // XBOX Buttons
     
@@ -66,7 +66,9 @@ public final class Constants {
         public static final int xboxLStickButton = 9;
         public static final int xboxRStickButton = 10;
 
-        public static final double xboxStickDeadband = 0.05;  //Joysticks need to exceed this value
+        public static final double xboxLeftStickDeadband = 0.1;  
+        public static final double xboxRightStickDeadband = 0.15;  
+
 
         // USB Ports
         public static final int XBOX_CONTROLLER_PORT = 0;

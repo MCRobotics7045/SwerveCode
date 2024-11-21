@@ -14,8 +14,12 @@ import java.util.Optional;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
-public class Robot extends TimedRobot {
+public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
   // private VisionSubsystem vision = new VisionSubsystem();
   private RobotContainer m_robotContainer;
@@ -26,10 +30,19 @@ public class Robot extends TimedRobot {
     //Has To stay on Top
     m_robotContainer = new RobotContainer();
     //Has To stay on Top
-    
     SmartDashboard.putString("Event Name", DriverStation.getEventName());
     SmartDashboard.putString("Alliance", "Cant Find");
+    Logger.recordMetadata("ProjectName", "MyProject");
+    if (isReal()) {
+      Logger.addDataReceiver(new WPILOGWriter()); 
+      Logger.addDataReceiver(new NT4Publisher()); 
+    } else {
+      Logger.addDataReceiver(new NT4Publisher());
+    }
+  
+    Logger.start(); 
   }
+
 
   @Override
   public void robotPeriodic() {
@@ -38,6 +51,12 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().run(); 
     //Has To stay on Top
     //Has To stay on Top
+
+
+
+    Logger.recordOutput("Pose/BotPose", RobotContainer.SWERVE.getPose());
+
+
 
     ally =  DriverStation.getAlliance();
     SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());

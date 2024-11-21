@@ -24,23 +24,23 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonTrackedTarget;
-
+import org.littletonrobotics.junction.Logger;
 
 
 public class VisionSubsystem extends SubsystemBase {
   /** Creates a new VisionSubsystem. */
   public PhotonCamera poseCam; 
-  // PhotonCamera piCamera2 = new PhotonCamera("Pi_Camera2");
 
-  int FoundID; // Called in CheckID() pls dont call anywhere else
+
+  int FoundID; 
   int SelectedID;
   int Cycle = 0;
   AprilTagFieldLayout fieldLayout;
   PhotonPoseEstimator photonPoseEstimator;
   public Transform3d camPose;
   public static SendableChooser<Integer> AprilTagSelector;
-  private int lastCheckedTagId = -1; // Keeps track of the last Tag ID checked
-  private boolean warningDisplayed = false; // Flag to track if warning has been shown
+  private int lastCheckedTagId = -1; 
+  private boolean warningDisplayed = false; 
   private Pose3d Pose;
   boolean done;
   double yaw;
@@ -113,7 +113,6 @@ public class VisionSubsystem extends SubsystemBase {
         yaw = bestTarget.getYaw();
       }
     }
-    SmartDashboard.putNumber("Cycle Number",Cycle);
     Cycle = Cycle + 1;
     
     SelectedID = AprilTagSelector.getSelected();
@@ -204,7 +203,7 @@ public class VisionSubsystem extends SubsystemBase {
 
  
   public Optional<EstimatedRobotPose> EST_POSE_RETURN() {
-		if (poseCam.getLatestResult().getTargets().size() != 2){
+    if (poseCam.getLatestResult().getTargets().isEmpty()){
             done = false;
             return Optional.empty();
         }

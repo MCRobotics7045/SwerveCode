@@ -24,18 +24,20 @@ import edu.wpi.first.networktables.StringPublisher;
 // import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.robot.Robot;
 
+import static frc.robot.RobotContainer.SWERVE;
+import static frc.robot.RobotContainer.VISION;
 import static frc.robot.Constants.Constants.Vision.*;
 
 import org.photonvision.PhotonCamera;
 public class SimulationTele {
 
-    PhotonCamera piCamera1 = new PhotonCamera("Pi_Camera");
+    PhotonCamera piCamera1 = VISION.poseCam;
     /**
      * Construct a telemetry object, with the specified max speed of the robot
      * 
      * @param maxSpeed Maximum speed in meters per second
      */
-    VisionSystemSim visionSim;
+    public VisionSystemSim visionSim;
     SimCameraProperties cameraProp;
     public SimulationTele() {
         if (Robot.isSimulation()) {
@@ -112,7 +114,7 @@ public class SimulationTele {
     /* Accept the swerve drive state and telemeterize it to smartdashboard */
     public void telemeterize(SwerveDriveState state) {
         /* Telemeterize the pose */
-        Pose2d pose = state.Pose;
+        Pose2d pose = SWERVE.getPose();
         fieldTypePub.set("Field2d");
         if (Robot.isSimulation()) {
             visionSim.update(pose);

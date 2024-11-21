@@ -5,6 +5,11 @@
         "header": {
           "open": true
         }
+      },
+      "Pigeon 2 (v6)[54]": {
+        "header": {
+          "open": true
+        }
       }
     }
   },
@@ -14,15 +19,28 @@
       "/Pose": "Field2d",
       "/SmartDashboard/AprilTag Selection": "String Chooser",
       "/SmartDashboard/Auto Chooser": "String Chooser",
+      "/SmartDashboard/GameFeild": "Field2d",
       "/SmartDashboard/Intake Mech": "Mechanism2d",
       "/SmartDashboard/Module 0": "Mechanism2d",
       "/SmartDashboard/Module 1": "Mechanism2d",
       "/SmartDashboard/Module 2": "Mechanism2d",
       "/SmartDashboard/Module 3": "Mechanism2d",
-      "/SmartDashboard/VisionSystemSim-main/Sim Field": "Field2d"
+      "/SmartDashboard/VisionSystemSim-main/Sim Field": "Field2d",
+      "/SmartDashboard/field": "Field2d"
     },
     "windows": {
       "/SmartDashboard/Auto Chooser": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/GameFeild": {
+        "bottom": 1476,
+        "height": 8.210550308227539,
+        "left": 150,
+        "right": 2961,
+        "top": 79,
+        "width": 16.541748046875,
         "window": {
           "visible": true
         }

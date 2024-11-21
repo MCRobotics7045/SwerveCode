@@ -17,6 +17,8 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 import org.photonvision.EstimatedRobotPose;
+
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -28,17 +30,20 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+
 import frc.robot.RobotContainer;
 import frc.robot.Constants.Constants;
 import frc.robot.Constants.TunerConstants;
-// 
 
 import static frc.robot.Constants.Constants.SwerveConstants.*;
+import org.littletonrobotics.junction.Logger;
+
 /**
  * Class that extends the Phoenix SwerveDrivetrain class and implements
  * subsystem so it can be used in command-based projects easily.
  */
 public class SwerveSubsystem extends SwerveDrivetrain implements Subsystem {
+    private static final LinearFilter speedSmoother = LinearFilter.movingAverage(5);
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
@@ -46,7 +51,7 @@ public class SwerveSubsystem extends SwerveDrivetrain implements Subsystem {
     Field2d field = new Field2d();
     public Double SpeedMultipler = 1.0;
     private Optional<EstimatedRobotPose> estimated;
-
+    double[] states = new double[8];
     
     public SwerveSubsystem(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
         super(driveTrainConstants, OdometryUpdateFrequency, modules);
@@ -62,7 +67,11 @@ public class SwerveSubsystem extends SwerveDrivetrain implements Subsystem {
         if (Utils.isSimulation()) {
             startSimThread();
         }
+        SmartDashboard.putData("GameFeild", field);
     }
+
+   
+
 
    
 
@@ -96,26 +105,31 @@ public class SwerveSubsystem extends SwerveDrivetrain implements Subsystem {
         m_simNotifier.startPeriodic(kSimLoopPeriod);
     }
 
+     public Pose2d getPose() {
+        return getState().Pose;
+    }
 
-    private void configurePathPlanner() {
+    public void configurePathPlanner() {
         double driveBaseRadius = 0;
         for (var moduleLocation : m_moduleLocations) {
             driveBaseRadius = Math.max(driveBaseRadius, moduleLocation.getNorm());
         }
-
         AutoBuilder.configureHolonomic(
-            ()->this.getState().Pose, // Supplier of current robot pose
-            this::seedFieldRelative,  // Consumer for seeding pose against auto
-            this::getCurrentRobotChassisSpeeds,
-            (speeds)->this.setControl(AutoRequest.withSpeeds(speeds)), // Consumer of ChassisSpeeds to drive the robot
-            new HolonomicPathFollowerConfig(new PIDConstants(10, 0, 0),
-                                            new PIDConstants(10, 0, 0),
-                                            MaxSpeed,
-                                            driveBaseRadius,
-                                            new ReplanningConfig()),
-            () -> RobotContainer.IsRed(), // Assume the path needs to be flipped for Red vs Blue, this is normally the case
-            this); // Subsystem for requirements
+                this::getPose,
+                this::seedFieldRelative,
+                this::getCurrentRobotChassisSpeeds,
+                (speeds) -> this.setControl(AutoRequest.withSpeeds(speeds)),
+                new HolonomicPathFollowerConfig(
+                        new PIDConstants(10, 0, 0),
+                        new PIDConstants(10, 0, 0),
+                        TunerConstants.kSpeedAt12VoltsMps,
+                        driveBaseRadius,
+                        new ReplanningConfig()),
+                () -> RobotContainer.IsRed(),
+                this);
+
     }
+
 
     public Command getAutoPath(String pathName) {
         return new PathPlannerAuto(pathName);
@@ -127,10 +141,8 @@ public class SwerveSubsystem extends SwerveDrivetrain implements Subsystem {
         return m_kinematics.toChassisSpeeds(getState().ModuleStates);
     }
 
-    public Pose2d getPose() {
-        return getState().Pose;
-    }
-
+   
+   
     public void UpdatePose() {
         if (estimated.isPresent()){
             EstimatedRobotPose Given = estimated.get();
@@ -138,16 +150,32 @@ public class SwerveSubsystem extends SwerveDrivetrain implements Subsystem {
             
         }
     }
+
     @Override
     public void periodic() {
-        
-        field.setRobotPose(getPose());
-        SmartDashboard.putString("Pose", getPose().toString());
-        // estimated = VISION.EST_POSE_RETURN();
-        // if(DriverStation.isTeleop() || DriverStation.isDisabled() ){
-        //     UpdatePose();
-            
-    // }
 
+
+
+        // for (int i = 0; i < 4; i++)
+        //     states[i * 2] = getModule(i).getTargetState().angle.getRadians();
+        // Logger.recordOutput("Target States", states);
+        // for (int i = 0; i < 4; i++) states[i * 2 + 1] = getModule(i).getCurrentState().speedMetersPerSecond;
+        // for (int i = 0; i < 4; i++)
+        //     states[i * 2] = getModule(i).getCurrentState().angle.getRadians();
+        // Logger.recordOutput("Measured States", states);
+
+        // // Logger.recordOutput("Rotation/Rotational", getPose().getRotation());
+        // Logger.recordOutput("Speeds/Chassisspeeds", getCurrentRobotChassisSpeeds());
+        
+        // field.setRobotPose(getPose());
+        // SmartDashboard.putString("pose", getPose().toString());
+        // estimated = VISION.EST_POSE_RETURN();
+        // UpdatePose();
+            
+        
+            
+           
+          
+        
     }
 }
