@@ -14,8 +14,6 @@ import frc.robot.Constants.Constants.SwerveConstants;
 import frc.robot.subsystems.Swerve.SwerveSubsystem;
 import static frc.robot.Constants.Constants.SwerveConstants.*;
 import static frc.robot.Constants.Constants.InputConstants.*;
-import static java.lang.Math.cos;
-import static java.lang.Math.sin;
 
 public class DefaultDrive extends Command {
 

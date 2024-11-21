@@ -10,7 +10,7 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstantsFactory;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.ClosedLoopOutputType;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants.SteerFeedbackType;
-
+import static frc.robot.Constants.Constants.*;
 import edu.wpi.first.math.util.Units;
 import frc.robot.subsystems.Swerve.SwerveSubsystem;
 
@@ -55,7 +55,7 @@ public class TunerConstants {
         );
     private static final TalonFXConfiguration steerInitialConfigs = new TalonFXConfiguration()
         .withCurrentLimits(
-            new CurrentLimitsConfigs().withSupplyCurrentLimit(20).withSupplyCurrentLimitEnable(true)
+                new CurrentLimitsConfigs().withSupplyCurrentLimit(20).withSupplyCurrentLimitEnable(true)
         );
     private static final CANcoderConfiguration cancoderInitialConfigs = new CANcoderConfiguration();
     // Configs for the Pigeon 2 leave this null 
@@ -82,7 +82,6 @@ public class TunerConstants {
     private static final boolean kInvertRightSide = true;
 
     private static final String kCANbusName = "";
-    private static final int kPigeonId = 54;
 
 
     // These are only used for simulation
@@ -97,7 +96,7 @@ public class TunerConstants {
     //This Defines the DriveTrain EX.. Setup for Pigeon and CanBus
     private static final SwerveDrivetrainConstants DrivetrainConstants = new SwerveDrivetrainConstants()
             .withCANbusName(kCANbusName)
-            .withPigeon2Id(kPigeonId)
+            .withPigeon2Id(Pigeon2Iid)
             .withPigeon2Configs(pigeonConfigs);
 
     //Setus up all Constants To the DriveTrain 

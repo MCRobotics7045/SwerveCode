@@ -34,7 +34,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.Constants;
 import frc.robot.Constants.TunerConstants;
-
+import static frc.robot.RobotContainer.VISION;
 import static frc.robot.Constants.Constants.SwerveConstants.*;
 import org.littletonrobotics.junction.Logger;
 
@@ -167,11 +167,17 @@ public class SwerveSubsystem extends SwerveDrivetrain implements Subsystem {
         // // Logger.recordOutput("Rotation/Rotational", getPose().getRotation());
         // Logger.recordOutput("Speeds/Chassisspeeds", getCurrentRobotChassisSpeeds());
         
-        // field.setRobotPose(getPose());
+       
         // SmartDashboard.putString("pose", getPose().toString());
-        // estimated = VISION.EST_POSE_RETURN();
-        // UpdatePose();
-            
+        estimated = VISION.EST_POSE_RETURN();
+        UpdatePose();
+        Pose2d currentPose = getPose();
+        if (currentPose != null) { 
+            field.setRobotPose(currentPose);
+        } else {
+            System.out.println("Warning: currentPose is null, cannot set robot pose on the field.");
+            getState().Pose = new Pose2d();
+        } 
         
             
            
