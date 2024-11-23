@@ -65,7 +65,7 @@ public class DefaultDrive extends Command {
     rotationalVelocity = xRotateFilter.calculate(InputZ);
     SWERVE.drive(yVelocity, xVelocity, rotationalVelocity);
     
-    System.out.println(xVelocity + "  " + yVelocity + "   " + rotationalVelocity);
+    
     
   }
 

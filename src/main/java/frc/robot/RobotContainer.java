@@ -6,7 +6,6 @@
 package frc.robot;
 
 
-import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -59,15 +58,15 @@ public class RobotContainer {
     // final POVButton dPadUp = new POVButton(XBOX, 0);
     // final POVButton dPadDown = new POVButton(XBOX, 180);
     // final JoystickButton buttonY = new JoystickButton(XBOX, xboxYellowButton);
-    // final JoystickButton buttonA = new JoystickButton(XBOX, xboxGreenButton);   
-    final JoystickButton buttonX = new JoystickButton(XBOX, xboxBlueButton);
+    // // final JoystickButton buttonA = new JoystickButton(XBOX, xboxGreenButton);   
+    // final JoystickButton buttonX = new JoystickButton(XBOX, xboxBlueButton);
     // final JoystickButton buttonB = new JoystickButton(XBOX, xboxRedButton);
     // // final JoystickButton buttonRB = new JoystickButton(XBOX, xboxRBButton);
     // final JoystickButton buttonLB = new JoystickButton(XBOX, xboxLBButton);
     // final JoystickButton buttonStart = new JoystickButton(XBOX, xboxStartButton);
     // final JoystickButton buttonMENU = new JoystickButton(XBOX, xboxMenuButton);
     
-    buttonX.onTrue(new InstantCommand(PIGEON::zeroPigeon));
+    // buttonX.onTrue(new InstantCommand(PIGEON::zeroPigeon));
     
   }
 

@@ -28,10 +28,12 @@ import static frc.robot.RobotContainer.SWERVE;
 import static frc.robot.RobotContainer.VISION;
 import static frc.robot.Constants.Constants.Vision.*;
 
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 public class SimulationTele {
 
-    PhotonCamera piCamera1 = VISION.poseCam;
+    PhotonCamera SimCam = VISION.poseCam;
+    boolean IsSimReady = false; 
     /**
      * Construct a telemetry object, with the specified max speed of the robot
      * 
@@ -51,7 +53,7 @@ public class SimulationTele {
             cameraProp.setAvgLatencyMs(35);
             cameraProp.setLatencyStdDevMs(5);
             System.out.println("Cam Set Up Comp");
-            PhotonCameraSim cameraSim = new PhotonCameraSim(piCamera1, cameraProp);
+            PhotonCameraSim cameraSim = new PhotonCameraSim(SimCam, cameraProp);
             // X is forward and back and Y is Left and right and Z is Up and Down This is at floor level cause Z=0
             Translation3d robotToCameraTrl = new Translation3d(0.1, 0, 0.5);
             // 15 Degrees up
@@ -62,12 +64,15 @@ public class SimulationTele {
             cameraSim.enableRawStream(true);
             cameraSim.enableProcessedStream(true);
             cameraSim.enableDrawWireframe(true);
+            IsSimReady = true; 
         }
+
+        Logger.recordOutput("IsSimReady", IsSimReady);
     }
 
     /* What to publish over networktables for telemetry */
     private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
-
+ 
     /* Robot pose for field positioning */
     private final NetworkTable table = inst.getTable("Pose");
     private final DoubleArrayPublisher fieldPub = table.getDoubleArrayTopic("robotPose").publish();

@@ -30,11 +30,12 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-
+import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.Constants;
 import frc.robot.Constants.TunerConstants;
 import static frc.robot.RobotContainer.VISION;
+import static frc.robot.RobotContainer.SIMULATION_TELE;
 import static frc.robot.Constants.Constants.SwerveConstants.*;
 import org.littletonrobotics.junction.Logger;
 
@@ -68,6 +69,7 @@ public class SwerveSubsystem extends SwerveDrivetrain implements Subsystem {
             startSimThread();
         }
         SmartDashboard.putData("GameFeild", field);
+        getState().Pose = new Pose2d();
     }
 
    
@@ -154,11 +156,18 @@ public class SwerveSubsystem extends SwerveDrivetrain implements Subsystem {
     @Override
     public void periodic() {
 
+        //Assigns Pose to null if neded 
+         if (getState().Pose != null) {
+            field.setRobotPose(getState().Pose);
+        } else {
+            System.out.println("Warning Pose Not Detected");
+        }
 
+        for (int i = 0; i < 4; i++)
+            states[i * 2] = getModule(i).getTargetState().angle.getRadians();
 
-        // for (int i = 0; i < 4; i++)
-        //     states[i * 2] = getModule(i).getTargetState().angle.getRadians();
-        // Logger.recordOutput("Target States", states);
+        Logger.recordOutput("Pose", getPose());
+        Logger.recordOutput("Target States", states);
         // for (int i = 0; i < 4; i++) states[i * 2 + 1] = getModule(i).getCurrentState().speedMetersPerSecond;
         // for (int i = 0; i < 4; i++)
         //     states[i * 2] = getModule(i).getCurrentState().angle.getRadians();
@@ -171,15 +180,13 @@ public class SwerveSubsystem extends SwerveDrivetrain implements Subsystem {
         // SmartDashboard.putString("pose", getPose().toString());
         estimated = VISION.EST_POSE_RETURN();
         UpdatePose();
-        Pose2d currentPose = getPose();
-        if (currentPose != null) { 
-            field.setRobotPose(currentPose);
-        } else {
-            System.out.println("Warning: currentPose is null, cannot set robot pose on the field.");
-            getState().Pose = new Pose2d();
-        } 
         
-            
+       
+         
+         if (Robot.isSimulation()) {
+            SIMULATION_TELE.visionSim.update(getPose());
+            SIMULATION_TELE.visionSim.getDebugField();
+        }
            
           
         
